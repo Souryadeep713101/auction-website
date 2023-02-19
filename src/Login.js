@@ -9,20 +9,41 @@ import {
   browserLocalPersistence,
   getAuth,
   GoogleAuthProvider,
+  signOut,
 } from 'firebase/auth'
+import AdminInfoContext from './AdminInfoContext'
+import { getDoc , doc } from 'firebase/firestore'
+import  {db} from "./firebase.config"
 function Login() {
-  console.log('hi')
+ 
   const navigate = useNavigate()
-  const { setUserData } = useContext(UserInfoContext)
+  const { setUserData , changeUserType } = useContext(UserInfoContext)
+  const {getAdminData} = useContext(AdminInfoContext)
   const handleSignIn = async () => {
     try {
       const provider = new GoogleAuthProvider()
       const auth = getAuth()
       await setPersistence(auth, browserLocalPersistence)
       await signInWithPopup(auth, provider)
-      await setUserData(auth.currentUser)
-      navigate('/home')
-    } catch (e) {
+      
+      const isDeactivatedAccount =await getDoc(doc(db , "users" ,auth.currentUser.uid ))
+      if(isDeactivatedAccount.exists() && isDeactivatedAccount.data().user_status == false){
+        navigate("/account-deactivated")
+        await signOut(auth)
+        window.location.reload()
+      }else{ 
+      const isAdmin = await getDoc(doc(db , "Admin" , auth.currentUser.uid));
+      if(isAdmin.exists()) {
+       
+        changeUserType("admin"); 
+        navigate("/admin");
+      }
+      else{
+        navigate('/home')
+
+      }
+    }  
+      } catch (e) {
       console.log(e)
     }
   }

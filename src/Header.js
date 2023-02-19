@@ -15,6 +15,7 @@ function Header() {
       const auth = getAuth()
       await signOut(auth)
       navigate('/')
+      window.location.reload()
     } catch (e) {
       console.log(e)
     }

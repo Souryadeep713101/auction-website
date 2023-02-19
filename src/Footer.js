@@ -7,8 +7,8 @@ export default function Footer() {
         <div className='flex flex-col items-center'>
           <div className='flex flex-col items-center '>
             <Hsh />
-            <span>ACME Industries Ltd.</span>
-            <span>Providing reliable tech since 1992</span>
+            <span> Sale Bell </span>
+            <span>Providing reliable Auction Facility</span>
           </div>
 
           <div className='flex flex-col items-center'>

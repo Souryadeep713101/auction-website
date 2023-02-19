@@ -5,6 +5,8 @@ import { db } from './firebase.config.js'
 const UserInfoContext = createContext()
 
 export const UserInfoContextProvider = ({ children }) => {
+  const [userType , setUserType] = useState("buyer");
+
   const [user, setUser] = useState({
     uid: '',
     name: '',
@@ -13,17 +15,21 @@ export const UserInfoContextProvider = ({ children }) => {
     pincode: '',
     address: '',
     image: '',
+    userType : '',
+    user_status : ''
   })
   const [products, setProducts] = useState([])
   const [wallet, setWallet] = useState({ total_amount: 0 })
   const [searchProducts, setSearchProducts] = useState([])
 
-  const setUserData = async (User) => {
+  const setUserData = async (User , userType) => {
+    
     const docRef = doc(db, 'users', User.uid)
     const walletRef = doc(db, 'wallet', User.uid)
     const docSnap = await getDoc(docRef)
     // User not existing
     if (!docSnap.exists()) {
+      
       await setDoc(docRef, {
         uid: User.uid,
         name: User.displayName,
@@ -31,6 +37,9 @@ export const UserInfoContextProvider = ({ children }) => {
         number: '',
         pincode: '',
         address: '',
+        image : User.photoURL,
+        userType,
+        user_status : true
       })
       setUser((prevUser) => {
         return {
@@ -42,6 +51,8 @@ export const UserInfoContextProvider = ({ children }) => {
           number: '',
           pincode: '',
           address: '',
+          userType : userType,
+          user_status : true
         }
       })
 
@@ -55,8 +66,9 @@ export const UserInfoContextProvider = ({ children }) => {
     } else {
       //For Existing User
       const data = docSnap.data()
-      console.table(data)
+     
       setUser((prevUser) => {
+        
         return {
           ...prevUser,
           name: data.name,
@@ -66,9 +78,11 @@ export const UserInfoContextProvider = ({ children }) => {
           number: data.number,
           pincode: data.pincode,
           address: data.address,
+          userType : data.userType,
+          user_status :  data.user_status
         }
       })
-
+   
       const walletSnap = await getDoc(walletRef)
       const walletData = walletSnap.data()
       setWallet((prevWallet) => {
@@ -78,7 +92,7 @@ export const UserInfoContextProvider = ({ children }) => {
   }
 
   const fetchProducts = async () => {
-    console.log('Ami age')
+    
     const productSnapshot = await getDocs(collection(db, 'product'))
     const ProductArray = []
     setProducts([])
@@ -96,7 +110,7 @@ export const UserInfoContextProvider = ({ children }) => {
   }
 
   const filterProducts = (input) => {
-    console.log(input)
+ 
     var filteredProduct = products
     if (input != '') {
       filteredProduct = products.filter((product) => {
@@ -109,6 +123,17 @@ export const UserInfoContextProvider = ({ children }) => {
     setSearchProducts(filteredProduct)
   }
 
+
+const changeUserType = (userType)=>{
+
+setUserType(userType)
+
+}
+
+
+
+
+
   return (
     <UserInfoContext.Provider
       value={{
@@ -119,6 +144,8 @@ export const UserInfoContextProvider = ({ children }) => {
         fetchProducts,
         filterProducts,
         searchProducts,
+        userType , 
+        changeUserType
       }}
     >
       {children}

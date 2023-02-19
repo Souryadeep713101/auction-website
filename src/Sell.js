@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
-import { storage, db } from './firebase.config'
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { addDoc, collection, setDoc, doc, getDoc } from 'firebase/firestore'
+import { storage, db, auth } from './firebase.config'
+import { ref, uploadBytes, getDownloadURL , ge } from 'firebase/storage'
+import { addDoc, collection, setDoc, doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore'
 import { upload } from '@testing-library/user-event/dist/upload'
 import UserInfoContext from './UserInfoContext'
 import Spinner from './Spinner'
@@ -67,7 +67,7 @@ function Sell() {
     e.preventDefault()
 
     setLoading(true)
-
+  
     const aadhar_image_ref = ref(storage, `/aadhar_image/${uid}`)
 
     const aadharSnapShot = await uploadBytes(
@@ -84,8 +84,19 @@ function Sell() {
       aadhar_number: seller.aadhar_number,
       pan_number: seller.pan_number,
       gst_number: seller.gst_number,
+      total_sales : 0 ,
+      safety_deposits :0,
+      joining_date : Timestamp.now(),
+      products_sold : 0,
+      image :  auth.currentUser.photoURL
+
     })
-    console.log(aadharSnapShot, panSnapShot)
+    
+     
+    await updateDoc(doc(db , "users" , uid) , {userType : "both"})
+
+
+
     setCheckKyc(true)
     setLoading(false)
   }
@@ -131,7 +142,7 @@ function Sell() {
     setLoading(true)
     e.preventDefault()
 
-    console.log('heloo')
+  
 
     const product_image_ref = ref(
       storage,
@@ -172,6 +183,7 @@ function Sell() {
     })
     e.target.reset()
     setLoading(false)
+    window.location.reload()
   }
 
   return loading ? (

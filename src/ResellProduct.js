@@ -8,7 +8,7 @@ function ResellProduct() {
   return (
     <>
       <div className='pt-2 text-lg text-sky-400'>Resell Product</div>
-      <div className='flex'>
+      <div className='flex space-x-4'>
         {searchProducts
           .filter((product) => {
             return product.product_category === 'used_products'
